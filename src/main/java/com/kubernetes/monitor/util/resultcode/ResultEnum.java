@@ -8,7 +8,8 @@ public enum ResultEnum {
     UNKNOWN_ERROR(100, "未知错误"),
     UN_OR_PW_ERROR(104, "密码错误"),
     SUCCESS(0, "操作成功"),
-    NOT_FIND(404,"找不到资源");
+    NOT_FIND(404,"找不到资源"),
+    NOT_FIND_MASTER(404,"找不到主节点");
 
     private Integer code;
 

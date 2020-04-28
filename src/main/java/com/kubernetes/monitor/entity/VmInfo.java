@@ -22,4 +22,10 @@ public class VmInfo {
     private String rootName;
     @Column(name = "root_password")
     private String rootPassword;
+    @Column(name = "is_master")
+    private Integer isMaster;
+    @Column(name = "token")
+    private String token;
+    @Column(name = "sha")
+    private String sha;
 }

@@ -4,6 +4,7 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
+import com.kubernetes.monitor.entity.VmInfo;
 import com.kubernetes.monitor.util.exception.CustomException;
 import com.kubernetes.monitor.util.resultcode.ResultEnum;
 
@@ -15,14 +16,20 @@ import java.io.InputStreamReader;
 public class ConnectUtil {
     private final static int port = 22;//22 usually the default port
 
-    public void exec(String hostname, String username, String password) throws CustomException{
-        Connection conn = new Connection(hostname, port);
+    public static void exec(VmInfo vmInfo, String cmd, boolean isRoot) throws CustomException {
+        Connection conn = new Connection(vmInfo.getHostname(), port);
         Session ssh = null;
         try {
             //连接到主机
             conn.connect();
             //使用用户名和密码校验
-            boolean isconn = conn.authenticateWithPassword(username, password);
+            boolean isconn;
+            if (isRoot) {
+                isconn = conn.authenticateWithPassword(vmInfo.getRootName(), vmInfo.getRootPassword());
+            } else {
+                isconn = conn.authenticateWithPassword(vmInfo.getUsername(), vmInfo.getPassword());
+            }
+
             if (!isconn) {
                 System.out.println("用户名称或者是密码不正确");
                 throw new CustomException(ResultEnum.UN_OR_PW_ERROR);
@@ -36,10 +43,7 @@ public class ConnectUtil {
 
                 //执行命令
                 ssh = conn.openSession();
-                ssh.execCommand("echo \"testtest\"");
-                //只允许使用一行命令，即ssh对象只能使用一次execCommand这个方法，多次使用则会出现异常.
-                //使用多个命令用分号隔开
-                //ssh.execCommand("cd /root; sh hello.sh");
+                ssh.execCommand(cmd);
 
                 //将Terminal屏幕上的文字全部打印出来
                 InputStream is = new StreamGobbler(ssh.getStdout());
