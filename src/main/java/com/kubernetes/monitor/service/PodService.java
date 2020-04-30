@@ -1,9 +1,8 @@
 package com.kubernetes.monitor.service;
 
-import com.kubernetes.monitor.util.KubeClient;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
@@ -11,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PodService {
-    private CoreV1Api apiInstance = new CoreV1Api(KubeClient.getClient());
+
+    private CoreV1Api apiInstance = new CoreV1Api();
 
     public ResponseMessage createNamespacedPod(V1Pod body, String namespace) {
+        apiInstance = new CoreV1Api();
         try {
             V1Pod result = apiInstance.createNamespacedPod(namespace, body, null, null, null);
             return ResultUtil.success(result);
@@ -26,6 +27,7 @@ public class PodService {
     }
 
     public ResponseMessage deleteNamespacedPod(String name, String namespace) {
+        apiInstance = new CoreV1Api();
         try {
             apiInstance.deleteNamespacedPod(name, namespace, null, null, null, null, null, null);
             return ResultUtil.success();
@@ -44,6 +46,7 @@ public class PodService {
     }
 
     public ResponseMessage listNamespacedPod(String namespace){
+        apiInstance = new CoreV1Api();
         try {
             V1PodList result = apiInstance.listNamespacedPod(namespace, null, null,
                     null, null, null, null, null,
@@ -58,6 +61,7 @@ public class PodService {
     }
 
     public ResponseMessage readNamespacedPod(String name,String namespace){
+        apiInstance = new CoreV1Api();
         try {
             V1Pod result = apiInstance.readNamespacedPod(name, namespace,
                     null, null, null);

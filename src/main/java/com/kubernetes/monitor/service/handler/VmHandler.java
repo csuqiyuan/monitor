@@ -4,7 +4,7 @@ import com.kubernetes.monitor.dao.VmDao;
 import com.kubernetes.monitor.entity.TokenAndSha;
 import com.kubernetes.monitor.entity.VmInfo;
 import com.kubernetes.monitor.util.exception.CustomException;
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

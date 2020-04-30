@@ -1,6 +1,6 @@
 package com.kubernetes.monitor.util.exception;
 
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,25 +1,19 @@
 package com.kubernetes.monitor.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
-import com.kubernetes.monitor.entity.Patch;
 import com.kubernetes.monitor.util.KubeClient;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
-import io.kubernetes.client.custom.V1Patch;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
 @Service
 public class NamespaceService {
-    private CoreV1Api apiInstance = new CoreV1Api(KubeClient.getClient());
+    private CoreV1Api apiInstance = new CoreV1Api();
     public ResponseMessage createNamespace(V1Namespace body) {
+        apiInstance = new CoreV1Api();
         try {
             V1Namespace result = apiInstance.createNamespace(body, null, null, null);
             return ResultUtil.success(result);
@@ -32,6 +26,7 @@ public class NamespaceService {
     }
 
     public ResponseMessage deleteNamespace(String name) {
+        apiInstance = new CoreV1Api();
         try {
             V1Status result = apiInstance.deleteNamespace(name, null, null, null,
                     null, null, null);
@@ -51,6 +46,7 @@ public class NamespaceService {
     }
 
     public ResponseMessage listNamespace(){
+        apiInstance = new CoreV1Api();
         try {
             V1NamespaceList result = apiInstance.listNamespace(null, null, null,
                     null, null, null, null, null, null);
@@ -64,6 +60,7 @@ public class NamespaceService {
     }
 
     public ResponseMessage readNamespace(String name){
+        apiInstance = new CoreV1Api();
         try {
             V1Namespace result = apiInstance.readNamespace(name, null, null, null);
             return ResultUtil.success(result);

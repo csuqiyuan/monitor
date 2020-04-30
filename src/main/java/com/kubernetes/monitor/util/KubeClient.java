@@ -1,12 +1,16 @@
 package com.kubernetes.monitor.util;
 
 import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.util.ClientBuilder;
 
-
 public class KubeClient {
-    private static ApiClient client = new ClientBuilder().setBasePath("https://192.168.110.53:6443").setVerifyingSsl(false).build();
-    public static ApiClient getClient() {
-        return client;
+    public KubeClient(String ip) {
+        init(ip);
+    }
+
+    private void init(String ip){
+        ApiClient client = new ClientBuilder().setBasePath(String.format("https://%s:6443",ip)).setVerifyingSsl(false).build();
+        Configuration.setDefaultApiClient(client);
     }
 }

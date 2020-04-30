@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VmDao extends JpaRepository<VmInfo, String> {
-    @Query("from VmInfo v where v.isMaster = 0")
+    @Query("from VmInfo v where v.isMaster = 1")
     VmInfo getMaster();
 }

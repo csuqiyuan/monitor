@@ -3,7 +3,6 @@ package com.kubernetes.monitor.controller;
 import com.kubernetes.monitor.entity.TokenAndSha;
 import com.kubernetes.monitor.entity.VmInfo;
 import com.kubernetes.monitor.service.VmService;
-import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +17,10 @@ public class VmController {
         this.vmService = vmService;
     }
 
-    @PostMapping("/vm")
-    public ResponseMessage addVm(@RequestBody VmInfo vmInfo) {
-        return vmService.addVm(vmInfo);
-    }
+//    @PostMapping("/vm")
+//    public ResponseMessage addVm(@RequestBody VmInfo vmInfo) {
+//        return vmService.addVm(vmInfo);
+//    }
 
     @DeleteMapping("/vm/{hostname}")
     public ResponseMessage deleteVmByHostname(@PathVariable String hostname) {
@@ -40,9 +39,26 @@ public class VmController {
 
     @PostMapping("/master")
     public ResponseMessage master(@RequestBody VmInfo vmInfo) {
-        if (vmInfo.getIsMaster() != 0) {
+        System.out.println(vmInfo.toString());
+        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
+            vmInfo.setIsMaster(1);
+        }
+        return vmService.master(vmInfo);
+    }
+
+    @PostMapping("/create/master")
+    public ResponseMessage createMaster(@RequestBody VmInfo vmInfo) {
+        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
+            vmInfo.setIsMaster(1);
+        }
+        return vmService.createMaster(vmInfo);
+    }
+
+    @PostMapping("/create/node")
+    public ResponseMessage createNode(@RequestBody VmInfo vmInfo) {
+        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 0) {
             vmInfo.setIsMaster(0);
         }
-        return ResultUtil.success();
+        return vmService.node(vmInfo);
     }
 }

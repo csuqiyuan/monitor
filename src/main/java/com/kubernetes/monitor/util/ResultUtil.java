@@ -1,7 +1,7 @@
 package com.kubernetes.monitor.util;
 
 import com.kubernetes.monitor.util.response.ResponseMessage;
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 
 /**
  * 定义了请求成功和失败的封装类型

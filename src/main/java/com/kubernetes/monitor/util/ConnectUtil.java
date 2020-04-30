@@ -1,12 +1,11 @@
 package com.kubernetes.monitor.util;
 
 import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import com.kubernetes.monitor.entity.VmInfo;
 import com.kubernetes.monitor.util.exception.CustomException;
-import com.kubernetes.monitor.util.resultcode.ResultEnum;
+import com.kubernetes.monitor.config.resultcode.ResultEnum;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,11 +34,6 @@ public class ConnectUtil {
                 throw new CustomException(ResultEnum.UN_OR_PW_ERROR);
             } else {
                 System.out.println("已经连接OK");
-
-                //将本地conf/server_start.sh传输到远程主机的/opt/pg944/目录下
-                //可以用于两个机器间传文件
-//                SCPClient clt = conn.createSCPClient();
-//                clt.put("conf/server_start.sh", "/opt/pg944/");
 
                 //执行命令
                 ssh = conn.openSession();

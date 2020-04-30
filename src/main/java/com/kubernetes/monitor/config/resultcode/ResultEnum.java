@@ -1,4 +1,4 @@
-package com.kubernetes.monitor.util.resultcode;
+package com.kubernetes.monitor.config.resultcode;
 
 /**
  * 自定义错误类型
