@@ -2,8 +2,6 @@ package com.kubernetes.monitor.controller;
 
 import com.kubernetes.monitor.entity.Patch;
 import com.kubernetes.monitor.service.*;
-import com.kubernetes.monitor.util.KubeClient;
-import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import io.kubernetes.client.openapi.models.*;
 import org.springframework.beans.factory.annotation.Autowired;

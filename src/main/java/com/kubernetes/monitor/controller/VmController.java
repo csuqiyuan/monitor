@@ -2,7 +2,7 @@ package com.kubernetes.monitor.controller;
 
 import com.kubernetes.monitor.entity.TokenAndSha;
 import com.kubernetes.monitor.entity.VmInfo;
-import com.kubernetes.monitor.service.VmService;
+import com.kubernetes.monitor.service.NodeService;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/apis")
 public class VmController {
-    private VmService vmService;
+    private NodeService nodeService;
 
     @Autowired
-    public VmController(VmService vmService) {
-        this.vmService = vmService;
+    public VmController(NodeService nodeService) {
+        this.nodeService = nodeService;
     }
 
 //    @PostMapping("/vm")
@@ -22,19 +22,29 @@ public class VmController {
 //        return vmService.addVm(vmInfo);
 //    }
 
+    @GetMapping("/cluster")
+    public ResponseMessage getCluster(){
+        return nodeService.getCluster();
+    }
+
+    @GetMapping("/exit")
+    public ResponseMessage exit(){
+        return nodeService.exit();
+    }
+
     @DeleteMapping("/vm/{hostname}")
     public ResponseMessage deleteVmByHostname(@PathVariable String hostname) {
-        return vmService.deleteVm(hostname);
+        return nodeService.deleteVm(hostname);
     }
 
     @GetMapping("/vm/list")
     public ResponseMessage listVm() {
-        return vmService.listVm();
+        return nodeService.listVm();
     }
 
     @PostMapping("/callback/token")
     public ResponseMessage postTokenAndSha(TokenAndSha update) {
-        return vmService.postTokenAndSha(update);
+        return nodeService.postTokenAndSha(update);
     }
 
     @PostMapping("/master")
@@ -43,7 +53,7 @@ public class VmController {
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
             vmInfo.setIsMaster(1);
         }
-        return vmService.master(vmInfo);
+        return nodeService.master(vmInfo);
     }
 
     @PostMapping("/create/master")
@@ -51,7 +61,7 @@ public class VmController {
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
             vmInfo.setIsMaster(1);
         }
-        return vmService.createMaster(vmInfo);
+        return nodeService.createMaster(vmInfo);
     }
 
     @PostMapping("/create/node")
@@ -59,6 +69,6 @@ public class VmController {
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 0) {
             vmInfo.setIsMaster(0);
         }
-        return vmService.node(vmInfo);
+        return nodeService.node(vmInfo);
     }
 }
