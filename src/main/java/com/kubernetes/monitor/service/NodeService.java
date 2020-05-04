@@ -15,6 +15,7 @@ import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.V1NodeList;
 
+import io.kubernetes.client.openapi.models.V1Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,19 +59,6 @@ public class NodeService {
         }
     }
 
-    public ResponseMessage deleteVm(String hostname) {
-        try {
-            nodeHandler.deleteVm(hostname);
-            return ResultUtil.success();
-        } catch (CustomException e) {
-            return ResultUtil.error(e.getCode(), e.getMsg());
-        }
-    }
-
-    public ResponseMessage listVm() {
-        return ResultUtil.success(nodeHandler.listVm());
-    }
-
     public ResponseMessage postTokenAndSha(TokenAndSha update) {
         try {
             return ResultUtil.success(nodeHandler.postTokenAndSha(update));
@@ -92,6 +80,8 @@ public class NodeService {
         try {
             // 下载kube_tool
             ConnectUtil.exec(vmInfo, CmdsConfig.getTool(vmInfo.getUsername()), true);
+            // 清空一下
+            ConnectUtil.exec(vmInfo,CmdsConfig.uninstall(vmInfo.getUsername()),true);
             // 安装
             ConnectUtil.exec(vmInfo, CmdsConfig.installMaster(vmInfo.getUsername(),privateDockerRepo), true);
             // 复制config文件
@@ -116,6 +106,8 @@ public class NodeService {
         try {
             // 从git下载kube_tool
             ConnectUtil.exec(vmInfo, CmdsConfig.getTool(vmInfo.getUsername()), true);
+            // 清空一下
+            ConnectUtil.exec(vmInfo,CmdsConfig.uninstall(vmInfo.getUsername()),true);
             // 安装前先传一下token；
             VmInfo master = nodeHandler.getMaster();
             ConnectUtil.exec(master, CmdsConfig.postToken(master.getUsername(),serverIp), false);
@@ -145,6 +137,24 @@ public class NodeService {
         return ResultUtil.success();
     }
 
+    public ResponseMessage removeNode(String name){
+        try {
+            V1Status result = nodeHandler.removeNode(name);
+            VmInfo master = nodeHandler.getMaster();
+            if (name.equals(master.getHostname())){
+                nodeHandler.deleteAll();
+            }else{
+                nodeHandler.deleteVm(name);
+            }
+            nodeHandler.removeNode(name);
+            return ResultUtil.success(result);
+        } catch (ApiException e) {
+            if (e.getCode() == 404) {
+                return ResultUtil.success();
+            }
+            return ResultUtil.error(e.getCode(), e.getResponseBody());
+        }
+    }
 //    public ResponseMessage getCluster(){
 //        VmInfo vmInfo =
 //        new KubeClient(vmInfo.getHostname());

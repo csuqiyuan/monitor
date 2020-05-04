@@ -111,13 +111,6 @@ public class KubeController {
     }
     /* deployment end */
 
-    /* node start */
-    @GetMapping("/nodes")
-    public ResponseMessage listNode() {
-        return nodeService.listNode();
-    }
-    /* node end */
-
     /* deployment start */
     @PostMapping("/namespace")
     public ResponseMessage createNamespace(@RequestBody V1Namespace body) {

@@ -27,27 +27,7 @@ public class VmController {
         return nodeService.getCluster();
     }
 
-    @GetMapping("/exit")
-    public ResponseMessage exit(){
-        return nodeService.exit();
-    }
-
-    @DeleteMapping("/vm/{hostname}")
-    public ResponseMessage deleteVmByHostname(@PathVariable String hostname) {
-        return nodeService.deleteVm(hostname);
-    }
-
-    @GetMapping("/vm/list")
-    public ResponseMessage listVm() {
-        return nodeService.listVm();
-    }
-
-    @PostMapping("/callback/token")
-    public ResponseMessage postTokenAndSha(TokenAndSha update) {
-        return nodeService.postTokenAndSha(update);
-    }
-
-    @PostMapping("/master")
+    @PostMapping("/cluster")
     public ResponseMessage master(@RequestBody VmInfo vmInfo) {
         System.out.println(vmInfo.toString());
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
@@ -56,7 +36,24 @@ public class VmController {
         return nodeService.master(vmInfo);
     }
 
-    @PostMapping("/create/master")
+    /* node start */
+    @GetMapping("/nodes")
+    public ResponseMessage listNode() {
+        return nodeService.listNode();
+    }
+    /* node end */
+
+    @GetMapping("/exit")
+    public ResponseMessage exit(){
+        return nodeService.exit();
+    }
+
+    @PostMapping("/callback/token")
+    public ResponseMessage postTokenAndSha(TokenAndSha update) {
+        return nodeService.postTokenAndSha(update);
+    }
+
+    @PostMapping("/vm/master")
     public ResponseMessage createMaster(@RequestBody VmInfo vmInfo) {
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
             vmInfo.setIsMaster(1);
@@ -64,11 +61,16 @@ public class VmController {
         return nodeService.createMaster(vmInfo);
     }
 
-    @PostMapping("/create/node")
+    @PostMapping("/vm/node")
     public ResponseMessage createNode(@RequestBody VmInfo vmInfo) {
         if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 0) {
             vmInfo.setIsMaster(0);
         }
         return nodeService.node(vmInfo);
+    }
+
+    @DeleteMapping("/vm/{name}")
+    public ResponseMessage removeNode(@PathVariable String name){
+        return nodeService.removeNode(name);
     }
 }

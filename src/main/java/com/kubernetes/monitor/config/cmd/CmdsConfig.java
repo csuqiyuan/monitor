@@ -2,6 +2,10 @@ package com.kubernetes.monitor.config.cmd;
 
 public class CmdsConfig {
 
+    public static String uninstall(String username){
+        return String.format("cd /home/%s/kube_tool;./kube_tool.sh -u", username);
+    }
+
     public static String netWork(String username) {
         return String.format("cd /home/%s/kube_tool;./kube_tool.sh -p", username);
     }

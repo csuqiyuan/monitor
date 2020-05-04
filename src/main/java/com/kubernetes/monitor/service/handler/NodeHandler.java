@@ -9,10 +9,7 @@ import com.kubernetes.monitor.util.KubeClient;
 import com.kubernetes.monitor.util.exception.CustomException;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Container;
-import io.kubernetes.client.openapi.models.V1Node;
-import io.kubernetes.client.openapi.models.V1NodeList;
-import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,8 +44,12 @@ public class NodeHandler {
     }
 
     public void exit(){
-        vmDao.deleteAll();
+        deleteAll();
         new KubeClient(null);
+    }
+
+    public void deleteAll(){
+        vmDao.deleteAll();
     }
 
     public List<Node> listNode() throws ApiException {
@@ -80,6 +81,12 @@ public class NodeHandler {
         return result;
     }
 
+    public V1Status removeNode(String name) throws ApiException{
+        CoreV1Api apiInstance = new CoreV1Api();
+        return apiInstance.deleteNode(name, null, null, null, null,
+                null, null);
+    }
+
     public VmInfo addVm(VmInfo info) {
         return vmDao.save(info);
     }
@@ -92,13 +99,13 @@ public class NodeHandler {
         }
     }
 
-    public List<VmInfo> listVm() {
-        return vmDao.findAll();
-    }
-
     public VmInfo getMaster() {
 
         return vmDao.getMaster();
+    }
+
+    public VmInfo getVm(String name){
+        return vmDao.findById(name).orElse(new VmInfo());
     }
 
     public VmInfo postTokenAndSha(TokenAndSha update) throws CustomException {
