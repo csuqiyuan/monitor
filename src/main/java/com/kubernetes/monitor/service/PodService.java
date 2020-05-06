@@ -1,5 +1,7 @@
 package com.kubernetes.monitor.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.kubernetes.monitor.service.handler.PodHandler;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
@@ -8,6 +10,8 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PodService {
@@ -70,5 +74,21 @@ public class PodService {
             }
             return ResultUtil.error(e.getCode(), e.getResponseBody());
         }
+    }
+
+    public ResponseMessage listPodsByNode(String hostname) {
+        try {
+            V1PodList result = podHandler.listPodsByNode(hostname);
+            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
+            filter.getExcludes().add("strValue");
+            String objJson = JSON.toJSONString(result,filter);
+            return ResultUtil.success(JSON.parseObject(objJson));
+        } catch (ApiException e) {
+            if (e.getCode() == 404) {
+                return ResultUtil.error(ResultEnum.NOT_FIND);
+            }
+            return ResultUtil.error(e.getCode(), e.getResponseBody());
+        }
+
     }
 }

@@ -1,20 +1,27 @@
 package com.kubernetes.monitor.service;
 
+import com.alibaba.fastjson.JSON;
+import com.kubernetes.monitor.service.handler.NamespaceHandler;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class NamespaceService {
-    private CoreV1Api apiInstance = new CoreV1Api();
+    private NamespaceHandler namespaceHandler;
+
+    @Autowired
+    public NamespaceService(NamespaceHandler namespaceHandler) {
+        this.namespaceHandler = namespaceHandler;
+    }
+
     public ResponseMessage createNamespace(V1Namespace body) {
-        apiInstance = new CoreV1Api();
         try {
-            V1Namespace result = apiInstance.createNamespace(body, null, null, null);
+            V1Namespace result = namespaceHandler.createNamespace(body);
             return ResultUtil.success(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
@@ -25,10 +32,8 @@ public class NamespaceService {
     }
 
     public ResponseMessage deleteNamespace(String name) {
-        apiInstance = new CoreV1Api();
         try {
-            V1Status result = apiInstance.deleteNamespace(name, null, null, null,
-                    null, null, null);
+            V1Status result = namespaceHandler.deleteNamespace(name);
             return ResultUtil.success(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
@@ -45,11 +50,10 @@ public class NamespaceService {
     }
 
     public ResponseMessage listNamespace(){
-        apiInstance = new CoreV1Api();
         try {
-            V1NamespaceList result = apiInstance.listNamespace(null, null, null,
-                    null, null, null, null, null, null);
-            return ResultUtil.success(result);
+            V1NamespaceList result = namespaceHandler.listNamespace();
+            String objJson = JSON.toJSONString(result);
+            return ResultUtil.success(JSON.parseObject(objJson));
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
@@ -59,9 +63,8 @@ public class NamespaceService {
     }
 
     public ResponseMessage readNamespace(String name){
-        apiInstance = new CoreV1Api();
         try {
-            V1Namespace result = apiInstance.readNamespace(name, null, null, null);
+            V1Namespace result = namespaceHandler.readNamespace(name);
             return ResultUtil.success(result);
         } catch (ApiException e) {
             if (e.getCode()==404){

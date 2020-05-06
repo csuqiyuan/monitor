@@ -41,6 +41,32 @@ public class VmController {
     public ResponseMessage listNode() {
         return nodeService.listNode();
     }
+
+    @GetMapping("/node/{name}")
+    public ResponseMessage readNode(@PathVariable String name){
+        return nodeService.readNode(name);
+    }
+
+    @PostMapping("/master")
+    public ResponseMessage createMaster(@RequestBody VmInfo vmInfo) {
+        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
+            vmInfo.setIsMaster(1);
+        }
+        return nodeService.createMaster(vmInfo);
+    }
+
+    @PostMapping("/node")
+    public ResponseMessage createNode(@RequestBody VmInfo vmInfo) {
+        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 0) {
+            vmInfo.setIsMaster(0);
+        }
+        return nodeService.node(vmInfo);
+    }
+
+    @DeleteMapping("/node/{name}")
+    public ResponseMessage removeNode(@PathVariable String name){
+        return nodeService.removeNode(name);
+    }
     /* node end */
 
     @GetMapping("/exit")
@@ -51,26 +77,5 @@ public class VmController {
     @PostMapping("/callback/token")
     public ResponseMessage postTokenAndSha(TokenAndSha update) {
         return nodeService.postTokenAndSha(update);
-    }
-
-    @PostMapping("/vm/master")
-    public ResponseMessage createMaster(@RequestBody VmInfo vmInfo) {
-        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 1) {
-            vmInfo.setIsMaster(1);
-        }
-        return nodeService.createMaster(vmInfo);
-    }
-
-    @PostMapping("/vm/node")
-    public ResponseMessage createNode(@RequestBody VmInfo vmInfo) {
-        if (vmInfo.getIsMaster()==null||vmInfo.getIsMaster() != 0) {
-            vmInfo.setIsMaster(0);
-        }
-        return nodeService.node(vmInfo);
-    }
-
-    @DeleteMapping("/vm/{name}")
-    public ResponseMessage removeNode(@PathVariable String name){
-        return nodeService.removeNode(name);
     }
 }

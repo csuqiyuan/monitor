@@ -10,10 +10,14 @@ import com.kubernetes.monitor.util.exception.CustomException;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,22 +37,21 @@ public class NodeHandler {
         this.podHandler = podHandler;
     }
 
-    public void getCluster() throws CustomException{
+    public void getCluster() throws CustomException {
         VmInfo master = vmDao.getMaster();
-        if (master!=null){
+        if (master != null) {
             new KubeClient(master.getHostname());
-        }
-        else{
+        } else {
             throw new CustomException(ResultEnum.NOT_FIND_MASTER);
         }
     }
 
-    public void exit(){
+    public void exit() {
         deleteAll();
         new KubeClient(null);
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         vmDao.deleteAll();
     }
 
@@ -57,31 +60,63 @@ public class NodeHandler {
         V1NodeList list = apiInstance.listNode(null, null, null,
                 null, null, null, null, null, null);
         LinkedList<Node> result = new LinkedList<>();
-        for (V1Node item:list.getItems()){
-            Node node = Node.toNode(item);
-            List<V1Pod> pods = podHandler.listPodsByNode(node.getAddress());
-            BigDecimal usedCpu = new BigDecimal("0");
-            BigDecimal usedMemory = new BigDecimal("0");
-            for (V1Pod pod:pods){
-                for (V1Container container:pod.getSpec().getContainers()){
-                    if (container.getResources().getLimits()==null||
-                            container.getResources().getLimits().get("cpu")==null||
-                            container.getResources().getLimits().get("memory")==null||
-                            container.getResources().getLimits().get("cpu").getNumber()==null||
-                            container.getResources().getLimits().get("memory").getNumber()==null)
-                        continue;
-                    usedCpu = usedCpu.add(container.getResources().getLimits().get("cpu").getNumber());
-                    usedMemory = usedMemory.add(container.getResources().getLimits().get("memory").getNumber());
-                }
-            }
-            node.setUsableCpu(node.getRestCpu().subtract(usedCpu));
-            node.setUsableMemory(node.getRestMemory().subtract(usedMemory));
+        for (V1Node item : list.getItems()) {
+            Node node = toNode(item);
             result.add(node);
         }
         return result;
     }
 
-    public V1Status removeNode(String name) throws ApiException{
+    public Node readNode(String name) throws ApiException {
+        CoreV1Api apiInstance = new CoreV1Api();
+        V1Node item = apiInstance.readNode(name, null, null, null);
+        return toNode(item);
+    }
+
+    private Node toNode(V1Node item) throws ApiException {
+        Node node = Node.toNode(item);
+        if (item.getMetadata().getCreationTimestamp() != null) {
+            Date date = item.getMetadata().getCreationTimestamp().toDate();
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            String createTime = format.format(date);
+            node.setCreateTime(createTime);
+        }
+        V1PodList pods = podHandler.listPodsByNode(node.getHostname());
+        BigDecimal usedCpu = new BigDecimal("0");
+        BigDecimal usedMemory = new BigDecimal("0");
+        for (V1Pod pod : pods.getItems()) {
+            for (V1Container container : pod.getSpec().getContainers()) {
+                if (container.getResources().getLimits() == null ||
+                        container.getResources().getLimits().get("cpu") == null ||
+                        container.getResources().getLimits().get("memory") == null ||
+                        container.getResources().getLimits().get("cpu").getNumber() == null ||
+                        container.getResources().getLimits().get("memory").getNumber() == null) {
+                    try {
+                        usedCpu = usedCpu.add(container.getResources().getLimits().get("cpu").getNumber());
+                    } catch (NullPointerException e) {
+                        try {
+                            usedCpu = usedCpu.add(container.getResources().getRequests().get("cpu").getNumber());
+                        }catch (NullPointerException e1){}
+                    }
+                    try {
+                        usedMemory = usedMemory.add(container.getResources().getLimits().get("memory").getNumber());
+                    } catch (NullPointerException e) {
+                        try {
+                            usedCpu = usedCpu.add(container.getResources().getRequests().get("memory").getNumber());
+                        }catch (NullPointerException e1){}
+                    }
+                    continue;
+                }
+                usedCpu = usedCpu.add(container.getResources().getLimits().get("cpu").getNumber());
+                usedMemory = usedMemory.add(container.getResources().getLimits().get("memory").getNumber());
+            }
+        }
+        node.setUsableCpu(node.getRestCpu().subtract(usedCpu));
+        node.setUsableMemory(node.getRestMemory().subtract(usedMemory));
+        return node;
+    }
+
+    public V1Status removeNode(String name) throws ApiException {
         CoreV1Api apiInstance = new CoreV1Api();
         return apiInstance.deleteNode(name, null, null, null, null,
                 null, null);
@@ -104,7 +139,7 @@ public class NodeHandler {
         return vmDao.getMaster();
     }
 
-    public VmInfo getVm(String name){
+    public VmInfo getVm(String name) {
         return vmDao.findById(name).orElse(new VmInfo());
     }
 

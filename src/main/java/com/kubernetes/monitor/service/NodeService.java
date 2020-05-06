@@ -59,6 +59,17 @@ public class NodeService {
         }
     }
 
+    public ResponseMessage readNode(String name){
+        try{
+            return ResultUtil.success(nodeHandler.readNode(name));
+        }catch (ApiException e){
+            if (e.getCode() == 404) {
+                return ResultUtil.error(ResultEnum.NOT_FIND);
+            }
+            return ResultUtil.error(e.getCode(), e.getResponseBody());
+        }
+    }
+
     public ResponseMessage postTokenAndSha(TokenAndSha update) {
         try {
             return ResultUtil.success(nodeHandler.postTokenAndSha(update));
@@ -155,8 +166,5 @@ public class NodeService {
             return ResultUtil.error(e.getCode(), e.getResponseBody());
         }
     }
-//    public ResponseMessage getCluster(){
-//        VmInfo vmInfo =
-//        new KubeClient(vmInfo.getHostname());
-//    }
+
 }

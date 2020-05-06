@@ -1,28 +1,29 @@
 package com.kubernetes.monitor.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.kubernetes.monitor.entity.Patch;
+import com.kubernetes.monitor.service.handler.DeployHandler;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import com.kubernetes.monitor.config.resultcode.ResultEnum;
-import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.AppsV1Api;
 import io.kubernetes.client.openapi.models.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 @Service
 public class DepolyService {
-    private AppsV1Api apiInstance = new AppsV1Api();
+    private DeployHandler deployHandler;
+
+    @Autowired
+    public DepolyService(DeployHandler deployHandler) {
+        this.deployHandler = deployHandler;
+    }
 
     public ResponseMessage createNamespacedDeploy(V1Deployment body, String namespace) {
-        apiInstance = new AppsV1Api();
         try {
-            V1Deployment result = apiInstance.createNamespacedDeployment(namespace, body, null, null, null);
+            V1Deployment result = deployHandler.createNamespacedDeploy(body,namespace);
             SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
             filter.getExcludes().add("intValue");
             String objJson = JSON.toJSONString(result,filter);
@@ -36,10 +37,8 @@ public class DepolyService {
     }
 
     public ResponseMessage deleteNamespacedDeploy(String name, String namespace) {
-        apiInstance = new AppsV1Api();
         try {
-            V1Status result = apiInstance.deleteNamespacedDeployment(name, namespace, null, null,
-                    null, null, null, null);
+            V1Status result = deployHandler.deleteNamespacedDeploy(name, namespace);
             return ResultUtil.success(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
@@ -50,11 +49,8 @@ public class DepolyService {
     }
 
     public ResponseMessage listNamespacedDeploy(String namespace){
-        apiInstance = new AppsV1Api();
         try {
-            V1DeploymentList result = apiInstance.listNamespacedDeployment(namespace, null,
-                    null, null, null, null, null,
-                    null, null, null);
+            V1DeploymentList result = deployHandler.listNamespacedDeploy(namespace);
             SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
             filter.getExcludes().add("intValue");
             String objJson = JSON.toJSONString(result,filter);
@@ -68,9 +64,8 @@ public class DepolyService {
     }
 
     public ResponseMessage readNamespacedDeploy(String name,String namespace){
-        apiInstance = new AppsV1Api();
         try {
-            V1Deployment result = apiInstance.readNamespacedDeployment(name, namespace, null, null, null);
+            V1Deployment result = deployHandler.readNamespacedDeploy(name, namespace);
             SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
             filter.getExcludes().add("intValue");
             String objJson = JSON.toJSONString(result,filter);
@@ -84,12 +79,8 @@ public class DepolyService {
     }
 
     public ResponseMessage patchNamespacedDeploy(String name,String namespace,Patch patch){
-        apiInstance = new AppsV1Api();
-        ArrayList<JSONObject> body = new ArrayList<>();
-        body.add(JSON.parseObject(JSON.toJSONString(patch)));
-        V1Patch v1Patch = new V1Patch(body.toString());
         try {
-            V1Deployment result = apiInstance.patchNamespacedDeployment(name, namespace, v1Patch, "true", null, null, null);
+            V1Deployment result = deployHandler.patchNamespacedDeploy(name, namespace, patch);
             SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
             filter.getExcludes().add("intValue");
             String objJson = JSON.toJSONString(result,filter);

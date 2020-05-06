@@ -53,6 +53,11 @@ public class KubeController {
     public ResponseMessage readPod(@PathVariable("namespace") String namespace, @PathVariable("name") String name) {
         return podService.readNamespacedPod(name, namespace);
     }
+
+    @GetMapping("/node/{hostname}/pods")
+    public ResponseMessage listPodsByNode(@PathVariable String hostname){
+        return podService.listPodsByNode(hostname);
+    }
     /* pod end */
 
     /* service start */

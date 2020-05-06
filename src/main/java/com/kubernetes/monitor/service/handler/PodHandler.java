@@ -13,17 +13,23 @@ import java.util.List;
 public class PodHandler {
     private CoreV1Api apiInstance = new CoreV1Api();
 
-    public List<V1Pod> listPodsByNode(String hostIp) throws ApiException{
-        apiInstance = new CoreV1Api();
-        V1PodList list = apiInstance.listPodForAllNamespaces(null,null,null,null,
-                null,null,null,null,null);
+    public V1PodList listPodsByNode(String hostname) throws ApiException {
+        V1PodList list = listPodForAllNamespaces();
         List<V1Pod> result = new LinkedList<>();
-        for (V1Pod item:list.getItems()){
-            if (item.getStatus().getHostIP()!=null&&item.getStatus().getHostIP().equals(hostIp)){
+        for (V1Pod item : list.getItems()) {
+            if (item.getSpec().getNodeName() != null && item.getSpec().getNodeName().equals(hostname)) {
                 result.add(item);
             }
         }
-        return result;
+        V1PodList podList = new V1PodList();
+        podList.setItems(result);
+        return podList;
+    }
+
+    public V1PodList listPodForAllNamespaces() throws ApiException {
+        apiInstance = new CoreV1Api();
+        return apiInstance.listPodForAllNamespaces(null, null, null, null,
+                null, null, null, null, null);
     }
 
     public V1Pod createNamespacedPod(V1Pod body, String namespace) throws ApiException {
