@@ -3,6 +3,7 @@ package com.kubernetes.monitor.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 import com.kubernetes.monitor.service.handler.ServiceHandler;
+import com.kubernetes.monitor.util.CommonUtil;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import com.kubernetes.monitor.config.resultcode.ResultEnum;
@@ -23,10 +24,7 @@ public class ServiceService {
     public ResponseMessage createNamespacedService(V1Service body, String namespace) {
         try {
             V1Service result = serviceHandler.createNamespacedService(body,namespace);
-            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
-            filter.getExcludes().add("strValue");
-            String objJson = JSON.toJSONString(result,filter);
-            return ResultUtil.success(JSON.parseObject(objJson));
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
@@ -50,10 +48,19 @@ public class ServiceService {
     public ResponseMessage listNamespacedService(String namespace){
         try {
             V1ServiceList result = serviceHandler.listNamespacedService(namespace);
-            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
-            filter.getExcludes().add("strValue");
-            String objJson = JSON.toJSONString(result,filter);
-            return ResultUtil.success(JSON.parseObject(objJson));
+            return CommonUtil.toJsonObject(result);
+        } catch (ApiException e) {
+            if (e.getCode()==404){
+                return ResultUtil.error(ResultEnum.NOT_FIND);
+            }
+            return ResultUtil.error(e.getCode(),e.getResponseBody());
+        }
+    }
+
+    public ResponseMessage listServiceForAllNamespaces(){
+        try {
+            V1ServiceList result = serviceHandler.listServiceForAllNamespaces();
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
@@ -65,10 +72,7 @@ public class ServiceService {
     public ResponseMessage readNamespacedService(String name,String namespace){
         try {
             V1Service result = serviceHandler.readNamespacedService(name, namespace);
-            SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
-            filter.getExcludes().add("strValue");
-            String objJson = JSON.toJSONString(result,filter);
-            return ResultUtil.success(JSON.parseObject(objJson));
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);

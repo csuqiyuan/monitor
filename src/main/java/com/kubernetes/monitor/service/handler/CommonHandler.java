@@ -34,7 +34,7 @@ public class CommonHandler {
         result.put("nodeNum", nodeNum);
         int namespaceNum = namespaceHandler.listNamespace().getItems().size();
         result.put("namespaceNum", namespaceNum);
-        int deployNum = deployHandler.listDeploymentesForAllNamespaces().getItems().size();
+        int deployNum = deployHandler.listDeploymentsForAllNamespaces().getItems().size();
         result.put("deployNum", deployNum);
         int serviceNum = serviceHandler.listServiceForAllNamespaces().getItems().size();
         result.put("serviceNum", serviceNum);

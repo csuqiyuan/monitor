@@ -35,7 +35,7 @@ public class DeployHandler {
                     null, null, null);
     }
 
-    public V1DeploymentList listDeploymentesForAllNamespaces() throws ApiException{
+    public V1DeploymentList listDeploymentsForAllNamespaces() throws ApiException{
         apiInstance = new AppsV1Api();
         return apiInstance.listDeploymentForAllNamespaces(null,null,null,
                 null,null,null,null,null,null);

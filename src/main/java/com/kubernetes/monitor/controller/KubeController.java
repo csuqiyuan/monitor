@@ -2,6 +2,7 @@ package com.kubernetes.monitor.controller;
 
 import com.kubernetes.monitor.entity.Patch;
 import com.kubernetes.monitor.service.*;
+import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import io.kubernetes.client.openapi.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +14,17 @@ public class KubeController {
 
     private ServiceService serviceService;
     private PodService podService;
-    private DepolyService depolyService;
-    private NodeService nodeService;
+    private DeployService deployService;
     private NamespaceService namespaceService;
 
     @Autowired
     public KubeController(ServiceService serviceService,
                           PodService podService,
-                          DepolyService depolyService,
-                          NodeService nodeService,
+                          DeployService deployService,
                           NamespaceService namespaceService) {
         this.serviceService = serviceService;
         this.podService = podService;
-        this.depolyService = depolyService;
-        this.nodeService = nodeService;
+        this.deployService = deployService;
         this.namespaceService = namespaceService;
     }
 
@@ -58,6 +56,11 @@ public class KubeController {
     public ResponseMessage listPodsByNode(@PathVariable String hostname){
         return podService.listPodsByNode(hostname);
     }
+
+    @GetMapping("/pods")
+    public ResponseMessage listAllPods(){
+        return podService.listAllPods();
+    }
     /* pod end */
 
     /* service start */
@@ -75,8 +78,13 @@ public class KubeController {
     }
 
     @GetMapping("/{namespace}/services")
-    public ResponseMessage listService(@PathVariable("namespace") String namespace) {
+    public ResponseMessage listServicesForNamespace(@PathVariable("namespace") String namespace) {
         return serviceService.listNamespacedService(namespace);
+    }
+
+    @GetMapping("/services")
+    public ResponseMessage listServicesForAllNamespaces(){
+        return serviceService.listServiceForAllNamespaces();
     }
 
     @GetMapping("/{namespace}/service/{name}")
@@ -89,30 +97,36 @@ public class KubeController {
     @PostMapping("/{namespace}/deployment")
     public ResponseMessage createDeployment(@RequestBody V1Deployment body,
                                             @PathVariable("namespace") String namespace) {
-        return depolyService.createNamespacedDeploy(body, namespace);
+        return deployService.createNamespacedDeploy(body, namespace);
     }
 
     @DeleteMapping("/{namespace}/deployment/{name}")
     public ResponseMessage deleteDeployment(@PathVariable("name") String name,
                                             @PathVariable("namespace") String namespace) {
-        return depolyService.deleteNamespacedDeploy(name, namespace);
+        return deployService.deleteNamespacedDeploy(name, namespace);
     }
 
     @GetMapping("/{namespace}/deployments")
     public ResponseMessage listDeployment(@PathVariable("namespace") String namespace) {
-        return depolyService.listNamespacedDeploy(namespace);
+        return deployService.listNamespacedDeploy(namespace);
     }
 
     @GetMapping("/{namespace}/deployment/{name}")
     public ResponseMessage readDeployment(@PathVariable("namespace") String namespace, @PathVariable("name") String name) {
-        return depolyService.readNamespacedDeploy(name, namespace);
+        return deployService.readNamespacedDeploy(name, namespace);
     }
+
+    @GetMapping("/deployments")
+    public ResponseMessage listDeploymentsForAllNamespaces(){
+        return deployService.listDeploymentsForAllNamespaces();
+    }
+
 
     @PatchMapping("/{namespace}/deployment/{name}")
     public ResponseMessage patchDeployment(@PathVariable("namespace") String namespace,
                                            @PathVariable("name") String name,
                                            @RequestBody Patch patch) {
-        return depolyService.patchNamespacedDeploy(name, namespace, patch);
+        return deployService.patchNamespacedDeploy(name, namespace, patch);
     }
     /* deployment end */
 

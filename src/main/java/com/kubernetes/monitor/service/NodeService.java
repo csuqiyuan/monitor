@@ -80,6 +80,12 @@ public class NodeService {
 
     public ResponseMessage master(VmInfo vmInfo) {
         nodeHandler.addVm(vmInfo);
+        try {
+            // 复制config文件
+            ConnectUtil.exec(vmInfo, CmdsConfig.cpConfig(vmInfo.getUsername(),vmInfo.getPassword()), false);
+        }catch (CustomException e){
+            return ResultUtil.error(e.getCode(), e.getMsg());
+        }
         new KubeClient(vmInfo.getHostname());
         return ResultUtil.success();
     }

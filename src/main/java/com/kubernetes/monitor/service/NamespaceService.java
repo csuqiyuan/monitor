@@ -2,6 +2,7 @@ package com.kubernetes.monitor.service;
 
 import com.alibaba.fastjson.JSON;
 import com.kubernetes.monitor.service.handler.NamespaceHandler;
+import com.kubernetes.monitor.util.CommonUtil;
 import com.kubernetes.monitor.util.ResultUtil;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import com.kubernetes.monitor.config.resultcode.ResultEnum;
@@ -22,7 +23,7 @@ public class NamespaceService {
     public ResponseMessage createNamespace(V1Namespace body) {
         try {
             V1Namespace result = namespaceHandler.createNamespace(body);
-            return ResultUtil.success(result);
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
@@ -52,8 +53,7 @@ public class NamespaceService {
     public ResponseMessage listNamespace(){
         try {
             V1NamespaceList result = namespaceHandler.listNamespace();
-            String objJson = JSON.toJSONString(result);
-            return ResultUtil.success(JSON.parseObject(objJson));
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
@@ -65,7 +65,7 @@ public class NamespaceService {
     public ResponseMessage readNamespace(String name){
         try {
             V1Namespace result = namespaceHandler.readNamespace(name);
-            return ResultUtil.success(result);
+            return CommonUtil.toJsonObject(result);
         } catch (ApiException e) {
             if (e.getCode()==404){
                 return ResultUtil.error(ResultEnum.NOT_FIND);
