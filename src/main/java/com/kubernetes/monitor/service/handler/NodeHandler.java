@@ -73,8 +73,9 @@ public class NodeHandler {
         return toNode(item);
     }
 
-    private Node toNode(V1Node item) throws ApiException {
+    public Node toNode(V1Node item) throws ApiException {
         Node node = Node.toNode(item);
+        VmInfo master = getMaster();
         if (item.getMetadata().getCreationTimestamp() != null) {
             Date date = item.getMetadata().getCreationTimestamp().toDate();
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
@@ -113,6 +114,12 @@ public class NodeHandler {
         }
         node.setUsableCpu(node.getRestCpu().subtract(usedCpu));
         node.setUsableMemory(node.getRestMemory().subtract(usedMemory));
+        if (node.getAddress().equals(master.getHostname())){
+            node.setIsMaster(1);
+        }
+        else{
+            node.setIsMaster(0);
+        }
         return node;
     }
 

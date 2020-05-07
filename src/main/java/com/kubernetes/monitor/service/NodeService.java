@@ -13,6 +13,7 @@ import com.kubernetes.monitor.util.exception.CustomException;
 import com.kubernetes.monitor.util.response.ResponseMessage;
 import com.kubernetes.monitor.config.resultcode.ResultEnum;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1Node;
 import io.kubernetes.client.openapi.models.V1NodeList;
 
 import io.kubernetes.client.openapi.models.V1Status;
@@ -156,14 +157,15 @@ public class NodeService {
 
     public ResponseMessage removeNode(String name){
         try {
+            Node node = nodeHandler.readNode(name);
             V1Status result = nodeHandler.removeNode(name);
             VmInfo master = nodeHandler.getMaster();
-            if (name.equals(master.getHostname())){
+            if (node.getAddress().equals(master.getHostname())){
                 nodeHandler.deleteAll();
             }else{
-                nodeHandler.deleteVm(name);
+                if (nodeHandler.getVm(node.getAddress())!=null)
+                    nodeHandler.deleteVm(node.getAddress());
             }
-            nodeHandler.removeNode(name);
             return ResultUtil.success(result);
         } catch (ApiException e) {
             if (e.getCode() == 404) {

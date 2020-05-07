@@ -18,6 +18,7 @@ public class Node {
     private BigDecimal usableCpu;
     private BigDecimal usableMemory;
     private String createTime;
+    private Integer isMaster;
 
     private Node(String hostname, String address, String osImage, BigDecimal totalCpu, BigDecimal totalMemory, BigDecimal restCpu, BigDecimal restMemory) {
         this.hostname = hostname;
